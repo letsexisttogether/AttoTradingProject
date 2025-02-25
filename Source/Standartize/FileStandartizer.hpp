@@ -7,6 +7,9 @@
 class FileStandartizer
 {
 public:
+    using Size = std::uint8_t;
+
+public:
     FileStandartizer() = default;
     FileStandartizer(const FileStandartizer&) = delete;
     FileStandartizer(FileStandartizer&&) = delete;
@@ -16,7 +19,10 @@ public:
 
     ~FileStandartizer() = default;
 
-    void Standartize() noexcept;
+    Size Standartize(const Size precision) noexcept;
+
+private:
+    Size CalculateWidth(const Size precision) const noexcept;
 
 private:
     std::filesystem::path m_InputPath;

@@ -1,5 +1,6 @@
 #include "FileStandartizer.hpp"
 
+#include <ios>
 #include <iostream>
 #include <string>
 
@@ -15,25 +16,35 @@ FileStandartizer::FileStandartizer(const std::string& inputFilePath,
     }
 }
 
-void FileStandartizer::Standartize() noexcept
+FileStandartizer::Size FileStandartizer::Standartize(const Size precision)
+    noexcept
 {
-    if (!m_InputStream.is_open()) 
-    {
-        // TODO: Fix this, type the real path 
-        std::cerr << "[Error] Could not open input file \"" 
-            << m_InputPath << '\"' << std::endl;
+    const Size width = CalculateWidth(precision);
 
-        return;
-    }
+    m_OutputStream << std::scientific << std::setprecision(precision);
 
     for (double value; m_InputStream >> value; )
     {
-        m_OutputStream << value << std::endl;
+        m_OutputStream << std::setw(width) << std::right
+            << value << std::endl;
     }
 
     if (m_InputStream.fail() && !m_InputStream.eof())
     {
         std::cerr << "[Error] Standartized found "
             "a non-double value" << std::endl;
+
+        std::filesystem::remove(m_OutputPath);
+
+        return 0;
     }
+
+    return width;
+}
+
+FileStandartizer::Size FileStandartizer::CalculateWidth(const Size precision)
+    const noexcept
+{
+    // Formula: possible sign + decimal + precision + e + e-sign + e-digits
+    return 1 + 1 + precision + 1 + 1 + 3;
 }

@@ -16,7 +16,7 @@ std::int32_t main(std::int32_t argc, char** argv)
     };
 
     FileStandartizer standartize{ inputFilePath, outputFilePath };
-    standartize.Standartize();
+    FileStandartizer::Size width = standartize.Standartize(8);
 
     return EXIT_SUCCESS;
 }
