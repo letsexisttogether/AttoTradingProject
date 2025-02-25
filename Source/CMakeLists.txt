@@ -1,4 +1,5 @@
 set(PROJECT_SOURCES
+    Standartize/FileStandartizer.cpp
     Main.cpp)
 
 target_sources(${PROJECT_NAME}
