@@ -1,5 +1,7 @@
 set(PROJECT_SOURCES
     Standartize/FileStandartizer.cpp
+    FileDataSource/FileDataSource.cpp
+    Sort/Sorter.cpp
     Main.cpp)
 
 target_sources(${PROJECT_NAME}
