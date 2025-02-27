@@ -1,11 +1,8 @@
 #include <iostream>
 
-#include "Standartize/FileStandartizer.hpp"
-#include "FileDataSource/FileDataSource.hpp"
-#include "Sort/Sorter.hpp"
-
-static void PrintValue(FileDataSource& dataSource,
-    const FileDataSource::Index lineNumber) noexcept;
+#include "Parse/Byte/ByteParser.hpp"
+#include "Parse/Value/ValueParser.hpp"
+#include "Transform/FileTransformer.hpp"
 
 std::int32_t main(std::int32_t argc, char** argv)
 {
@@ -20,27 +17,26 @@ std::int32_t main(std::int32_t argc, char** argv)
         ((argc > 2) ? (argv[2]) : ("Output.txt"))
     };
 
-    FileStandartizer standartize{ inputFilePath, outputFilePath };
-    FileStandartizer::Size width = standartize.Standartize(8);
+    const std::string tempFilePath{ "temp.bin" };
+    const std::size_t chunkSize = 100000;
 
-    FileDataSource dataSource{ outputFilePath, width };
+    FileTransformer toByteTransformer
+    { 
+        { inputFilePath, std::ios_base::in },
+        { tempFilePath, std::ios_base::binary },
+        chunkSize, new ByteParser{} 
+    };
+    toByteTransformer.Standartize();
+    toByteTransformer.~FileTransformer();
+    
 
-    /*
-    PrintValue(dataSource, 1);
-    dataSource.WriteValueAt(517.308, 1);
-    PrintValue(dataSource, 1);
-    */
-
-    Sorter sorter{ std::move(dataSource) };
-    sorter.Sort();
+    FileTransformer fromByteTransformer
+    { 
+        { tempFilePath, std::ios::binary },
+        { outputFilePath, std::ios::out },
+        chunkSize, new ValueParser{} 
+    };
+    fromByteTransformer.Standartize();
 
     return EXIT_SUCCESS;
-}
-
-void PrintValue(FileDataSource& dataSource,
-    const FileDataSource::Index lineNumber) noexcept
-{
-    const double value = dataSource.ReadValueAt(lineNumber);
-    std::cout << "The value at line: " << lineNumber << ": "
-        << value << std::endl;
 }
