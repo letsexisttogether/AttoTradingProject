@@ -18,7 +18,7 @@ std::int32_t main(std::int32_t argc, char** argv)
     };
 
     const std::string tempFilePath{ "temp.bin" };
-    const std::size_t chunkSize = 100000;
+    const std::size_t chunkSize = 25 * 1024 * 1024;
 
     FileTransformer toByteTransformer
     { 
@@ -29,7 +29,6 @@ std::int32_t main(std::int32_t argc, char** argv)
     toByteTransformer.Standartize();
     toByteTransformer.~FileTransformer();
     
-
     FileTransformer fromByteTransformer
     { 
         { tempFilePath, std::ios::binary },

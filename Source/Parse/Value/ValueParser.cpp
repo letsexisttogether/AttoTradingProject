@@ -2,7 +2,8 @@
 
 #include <iostream>
 #include <cstring>
-#include <sstream>
+#include <vector>
+#include <cstdio>
 
 ValueParser::Buffer ValueParser::Parse(const Buffer& buffer) noexcept
 {
@@ -12,20 +13,25 @@ ValueParser::Buffer ValueParser::Parse(const Buffer& buffer) noexcept
     Buffer tempBuffer{ m_RemainingData };
     tempBuffer.insert(tempBuffer.end(), buffer.begin(), buffer.end());
 
-    std::size_t i = 0;
     constexpr std::size_t doubleSize = sizeof(double);
+    constexpr std::size_t maxDoubleStrSize = 32; 
 
+    char doubleBuffer[maxDoubleStrSize];
+
+    std::size_t i = 0;
     while (i + doubleSize <= tempBuffer.size()) 
     {
         double value{};
-        std::memcpy(&value, tempBuffer.data() + i, doubleSize); 
+        std::memcpy(&value, tempBuffer.data() + i, doubleSize);
         i += doubleSize;
 
-        std::ostringstream oss;
-        oss << value << '\n';
+        const std::int32_t len = std::snprintf(doubleBuffer,
+            maxDoubleStrSize, "%.5g\n", value);
 
-        std::string valueStr = oss.str();
-        parsedValues.insert(parsedValues.end(), valueStr.begin(), valueStr.end());
+        if (len > 0)
+        {
+            parsedValues.insert(parsedValues.end(), doubleBuffer, doubleBuffer + len);
+        }
     }
 
     m_RemainingData.assign(tempBuffer.begin() + i, tempBuffer.end());
