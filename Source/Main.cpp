@@ -1,7 +1,9 @@
 #include <iostream>
 
+#include "Data/FileDataSource.hpp"
 #include "Parse/Byte/ByteParser.hpp"
 #include "Parse/Value/ValueParser.hpp"
+#include "Sort/Sorter.hpp"
 #include "Transform/FileTransformer.hpp"
 
 std::int32_t main(std::int32_t argc, char** argv)
@@ -29,6 +31,18 @@ std::int32_t main(std::int32_t argc, char** argv)
     toByteTransformer.Standartize();
     toByteTransformer.~FileTransformer();
     
+    FileDataSource dataSource
+    {
+        { tempFilePath, std::ios::binary },
+        chunkSize 
+    };
+
+    Sorter sorter{ std::move(dataSource) };
+    sorter.Sort();
+
+    const double value = dataSource.GetValue(100000);
+    std::cout << value << std::endl;
+
     FileTransformer fromByteTransformer
     { 
         { tempFilePath, std::ios::binary },

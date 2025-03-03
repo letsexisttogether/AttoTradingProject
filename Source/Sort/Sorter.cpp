@@ -6,7 +6,7 @@ Sorter::Sorter(FileDataSource&& dataSource)
 
 void Sorter::Sort() noexcept
 {
-    Sort(0, m_DataSource.Count() - 1);
+    Sort(0, m_DataSource.GetCount() - 1);
 }
 
 void Sorter::Sort(const Index left, const Index right) noexcept
@@ -29,28 +29,25 @@ void Sorter::Sort(const Index left, const Index right) noexcept
 Sorter::Index Sorter::Partition(const Index left, const Index right)
     noexcept
 {
-    const double pivot = m_DataSource.ReadValueAt(right);
+    const double pivot = m_DataSource.GetValue(left);
 
     Index i = left - 1;
 
     for (Index j = left; j < right; ++j)
     {
-        const bool isLess = m_DataSource.ReadValueAt(j) < pivot;
+        const double currentValue = m_DataSource.GetValue(j);
+        const bool isLess = currentValue < pivot;
         
         if (isLess)
         {
-            Swap(++i, j);
+            // std::swap(pivot, currentValue);
         }
     }
+    
+    const double lastValue = m_DataSource.GetValue(++i);
 
-    Swap(++i, right);
+    // std::swap(lastValue, pivot);
 
     return i;
 }
 
-void Sorter::Swap(const Index left, const Index right) noexcept
-{
-    const double temp = m_DataSource.ReadValueAt(left);
-    m_DataSource.WriteValueAt(m_DataSource.ReadValueAt(right), left); 
-    m_DataSource.WriteValueAt(temp, right);
-}
