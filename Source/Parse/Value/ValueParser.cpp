@@ -1,32 +1,29 @@
 #include "ValueParser.hpp"
 
-#include <iostream>
 #include <cstring>
 #include <vector>
 #include <cstdio>
 
-ValueParser::Buffer ValueParser::Parse(const Buffer& buffer) noexcept
+ValueParser::OutputBuffer ValueParser::Parse(const InputBuffer& buffer) noexcept
 {
-    Buffer parsedValues;
-    parsedValues.reserve(buffer.size());  
-
-    Buffer tempBuffer{ m_RemainingData };
-    tempBuffer.insert(tempBuffer.end(), buffer.begin(), buffer.end());
-
     constexpr std::size_t doubleSize = sizeof(double);
     constexpr std::size_t maxDoubleStrSize = 32; 
+
+    OutputBuffer parsedValues;
+    parsedValues.reserve(buffer.size() * maxDoubleStrSize);
+
+    InputBuffer tempBuffer = m_RemainingData;
+    tempBuffer.insert(tempBuffer.end(), buffer.begin(), buffer.end());
 
     char doubleBuffer[maxDoubleStrSize];
 
     std::size_t i = 0;
-    while (i + doubleSize <= tempBuffer.size()) 
+    while (i + 1 <= tempBuffer.size()) 
     {
-        double value{};
-        std::memcpy(&value, tempBuffer.data() + i, doubleSize);
-        i += doubleSize;
+        double value = tempBuffer[i++];
 
-        const std::int32_t len = std::snprintf(doubleBuffer,
-            maxDoubleStrSize, "%.5g\n", value);
+        const std::int32_t len = std::snprintf(doubleBuffer, maxDoubleStrSize,
+            "%.5g\n", value);
 
         if (len > 0)
         {

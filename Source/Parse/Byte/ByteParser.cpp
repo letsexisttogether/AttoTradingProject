@@ -2,9 +2,9 @@
 
 #include <iostream>
 
-ByteParser::Buffer ByteParser::Parse(const Buffer& buffer) noexcept
+ByteParser::OutputBuffer ByteParser::Parse(const InputBuffer& buffer) noexcept
 {
-    Buffer parsedValues{};
+    OutputBuffer parsedValues{};
     
     std::string doubleAsStr{ m_RemainingData }; 
 
@@ -23,11 +23,7 @@ ByteParser::Buffer ByteParser::Parse(const Buffer& buffer) noexcept
         {
             const double value = std::stod(doubleAsStr);
 
-            char bytes[sizeof(double)];
-            std::memcpy(bytes, &value, sizeof(double));
-
-            parsedValues.insert(parsedValues.end(), bytes,
-                bytes + sizeof(double));
+            parsedValues.push_back(value);
         }
         catch (const std::exception& exp)
         {

@@ -4,10 +4,7 @@ add_subdirectory(Data)
 add_subdirectory(Sort)
 
 set(PROJECT_SOURCES 
-    ${TRANSFORM_SOURCES}
     ${PARSE_SOURCES}
-    ${DATA_SOURCES}
-    ${SORT_SOURCES}
     Main.cpp)
 
 target_sources(${PROJECT_NAME}

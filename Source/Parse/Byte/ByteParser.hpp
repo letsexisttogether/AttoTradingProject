@@ -1,16 +1,21 @@
 #pragma once
 
+#include <string>
+
 #include "Parse/Parser.hpp"
 
-class ByteParser : public Parser
+class ByteParser : public Parser<char, double>
 {
+public:
+    ParserUsings(char, double);
+
 public:
     ByteParser() = default;
 
     ~ByteParser() = default;
 
-    Buffer Parse(const Buffer& buffer) noexcept;
+    OutputBuffer Parse(const InputBuffer& buffer) noexcept override;
 
 private:
-    std::string m_RemainingData{}; 
+    std::string m_RemainingData{};
 };
