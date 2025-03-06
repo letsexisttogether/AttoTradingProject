@@ -1,28 +1,35 @@
 #pragma once
 
-#include "Spawn/General/FileInfo.hpp"
-#include "Buffers/Input/InputBuffer.hpp"
+#include "Buffer/Input/InputBuffer.hpp"
+#include "General/FileInfo.hpp"
 
 class InputBufferSpawner
 {
 public:
+    using InputBuffer = InputBuffer<double>;
+
+public:
     InputBufferSpawner() = delete;
-    InputBufferSpawner(const InputBufferSpawner&) = delete;
-    InputBufferSpawner(InputBufferSpawner&&) = default;
+    InputBufferSpawner(const InputBufferSpawner&) = default;
+    InputBufferSpawner(InputBufferSpawner&&) = delete;
 
-    InputBufferSpawner(const FileInfo fileInfo,
-        const std::size_t chunkSize) noexcept(false);
+    InputBufferSpawner(FileInfo&& directoryInfo,
+        const std::size_t memoryAvailable) noexcept(false);
 
-    virtual ~InputBufferSpawner() = default;
+    ~InputBufferSpawner() = default;
 
-    virtual InputBuffer Spawn() noexcept(false) = 0;
+    InputBuffer Spawn() noexcept(false);
 
-    virtual bool IsSpawnDone() const noexcept = 0;
+    bool IsEnd() const noexcept;
 
-protected:
-    FileInfo m_FileInfo;
-    std::ifstream m_FileStream;
+    InputBufferSpawner& operator = (const InputBufferSpawner&) = delete;
+    InputBufferSpawner& operator = (InputBufferSpawner&&) = delete;
 
-    std::size_t m_ChunkSize;
-    std::size_t m_FileSize;
+private:
+    FileInfo m_DirectoryInfo;
+
+    std::size_t m_ReadSize;
+    
+    std::vector<std::filesystem::path> m_Files{};
+    std::size_t m_Iterator{};
 };

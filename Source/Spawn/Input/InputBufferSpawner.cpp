@@ -1,15 +1,48 @@
 #include "InputBufferSpawner.hpp"
 
-InputBufferSpawner::InputBufferSpawner(const FileInfo fileInfo,
-    const std::size_t chunkSize) noexcept(false)
-    : m_FileInfo{ fileInfo }, m_ChunkSize{ chunkSize },
-    m_FileStream{ m_FileInfo.Path, m_FileInfo.OpenMode }
+#include <iostream>
+#include <stdexcept>
+
+#include "Parse/Byte/ByteParser.hpp"
+
+InputBufferSpawner::InputBufferSpawner(FileInfo&& directoryInfo,
+    const std::size_t memoryAvailable) noexcept(false)
+    : m_DirectoryInfo{ std::move(directoryInfo) }
 {
-    if (!m_FileStream.is_open())
+    const std::filesystem::path& path = m_DirectoryInfo.Path;
+
+    if (!std::filesystem::exists(path)
+        || !std::filesystem::is_directory(path))
     {
-        throw std::exception{ "There's not access to the file" };
+        throw std::runtime_error{ "No access to the specified directory" };
     }
 
-    m_FileSize = std::filesystem::file_size(m_FileInfo.Path);
-    m_ChunkSize = std::min(m_ChunkSize, m_FileSize);
+    for (const auto& entry : std::filesystem::directory_iterator(path))
+    {
+        if (entry.is_regular_file()) 
+        {
+            m_Files.push_back(entry.path());
+
+            std::cout << m_Files.back() << '\n';
+        }
+    }
+
+    m_ReadSize = memoryAvailable / m_Files.size();
+}
+
+
+InputBufferSpawner::InputBuffer InputBufferSpawner::Spawn() noexcept(false)
+{
+    InputBuffer::FileReader reader
+    {
+        { m_Files.at(m_Iterator++), m_DirectoryInfo.OpenMode },
+        new ByteParser{}
+    };
+
+    return { std::move(reader), m_ReadSize };
+}
+
+bool InputBufferSpawner::IsEnd() const noexcept
+{
+    return m_Iterator >= m_Files.size();
 }
