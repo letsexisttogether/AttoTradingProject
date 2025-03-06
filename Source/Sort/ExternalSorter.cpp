@@ -1,7 +1,9 @@
 #include "ExternalSorter.hpp"
 
+#include <filesystem>
 #include <iostream>
 #include <algorithm>
+#include <queue>
 
 #include "FileProcess/Read/FileReader.hpp"
 #include "FileProcess/Write/FileWriter.hpp"
@@ -18,6 +20,11 @@ ExternalSorter::ExternalSorter(const std::filesystem::path& inputPath,
 {
     try
     {
+        if (std::filesystem::exists(m_TempDirPath))
+        {
+            std::filesystem::remove_all(m_TempDirPath);
+        }
+
         std::filesystem::create_directory(m_TempDirPath);
     }
     catch(std::exception& exp)
@@ -31,7 +38,7 @@ ExternalSorter::~ExternalSorter()
 {
     try
     {
-        // std::filesystem::remove_all(m_TempDirPath);
+        std::filesystem::remove_all(m_TempDirPath);
     }
     catch(std::exception& exp)
     {
@@ -58,7 +65,7 @@ void ExternalSorter::SortChunks() noexcept
 
     try
     {
-        std::cout << "We sort" << std::endl;
+        std::cout << "Sorting..." << std::endl;
 
         std::vector<double> data{};
 
@@ -93,48 +100,64 @@ void ExternalSorter::SortChunks() noexcept
 
 void ExternalSorter::MergeChunks() noexcept
 {
+    using ValueIndex = std::pair<double, std::uint8_t>;
+
+    std::priority_queue<ValueIndex, std::vector<ValueIndex>,
+        std::greater<ValueIndex>> queue{};
+
+    const std::size_t inputSize = m_AvailableMemory * 0.8;
+    const std::size_t outputSize = m_AvailableMemory - inputSize;
+
     try
     {
-        std::cout << "We merge" << std::endl;
+        std::cout << "Merging..." << std::endl;
 
         InputBufferSpawner inputBufferSpawner
         { 
             { m_TempDirPath, std::ios::in },
-            5 * 1024 * 1024
+            inputSize
         };
 
-        std::cout << "We try to spawn" << std::endl;
         std::vector<InputBufferSpawner::InputBuffer> inputBuffers{};
-        while(!inputBufferSpawner.IsEnd())
+        for (std::uint8_t i = 0; !inputBufferSpawner.IsEnd(); ++i)
         {
-            inputBuffers.push_back(inputBufferSpawner.Spawn());
+            auto inputBuffer = inputBufferSpawner.Spawn();
+            inputBuffer.Read();
+
+            queue.push({ inputBuffer.GetValue(), i });
+            inputBuffers.push_back(std::move(inputBuffer));
         }
-        std::cout << "We spawned" << std::endl;
 
         OutputBufferSpawner outputBufferSpawner
         {
             { m_OutputPath, std::ios::out },
-            10 * 1024 * 1024 
+            outputSize
         };
 
-        InputBuffer<double>& inputBuffer = inputBuffers.at(0);
-        OutputBuffer<double> outputBuffer{ outputBufferSpawner.Spawn() };
+        auto outputBuffer{ outputBufferSpawner.Spawn() };
 
-        while(!inputBuffer.IsEnd() || !inputBuffer.IsEOF())
+        while(!queue.empty())
         {
-            inputBuffer.Read();
+            const auto [value, index] = queue.top();
+            queue.pop();
 
-            while(!inputBuffer.IsEnd())
+            auto& inputBuffer = inputBuffers[index];
+
+            if (inputBuffer.IsEnd())
             {
-                if (outputBuffer.IsEnd())
-                {
-                    outputBuffer.Write();
-                }
-
-                const double value = inputBuffer.GetValue();
-
-                outputBuffer.PutValue(value);
+                inputBuffer.Read(); 
             }
+            if (!inputBuffer.IsEnd())
+            {
+                queue.push({ inputBuffer.GetValue(), index });
+            }
+
+            if (outputBuffer.IsEnd())
+            {
+                outputBuffer.Write();
+            }
+
+            outputBuffer.PutValue(value);
         }
     }
     catch(std::exception& exp)

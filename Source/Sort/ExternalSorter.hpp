@@ -30,5 +30,5 @@ private:
 
     const std::size_t m_AvailableMemory;
 
-    const std::filesystem::path m_TempDirPath{ "temp/" };
+    const std::filesystem::path m_TempDirPath{ "ext_sort_temp/" };
 };

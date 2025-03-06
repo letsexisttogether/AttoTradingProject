@@ -2,7 +2,7 @@
 
 BufferSpawner::BufferSpawner(FileInfo&& info, const std::size_t readSize,
     const std::size_t entitiesCount) noexcept
-    : m_Info{ std::move(info) }, m_ReadSize{ readSize },
+    : m_Info{ std::move(info) }, m_BufferSize{ readSize },
     m_EntitiesCount{ entitiesCount }
 {}
 

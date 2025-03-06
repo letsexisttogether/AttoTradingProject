@@ -21,6 +21,6 @@ public:
 
 protected:
     FileInfo m_Info{};
-    std::size_t m_ReadSize{};
+    std::size_t m_BufferSize{};
     std::size_t m_EntitiesCount{};
 };

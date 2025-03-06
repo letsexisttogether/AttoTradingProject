@@ -18,7 +18,7 @@ public:
 
     ~InputBuffer() = default;
 
-    _Type GetValue() noexcept;
+    _Type GetValue() noexcept(false);
 
     void Read() noexcept(false);
 
@@ -44,20 +44,24 @@ private:
 template <typename _Type>
 InputBuffer<_Type>::InputBuffer(FileReader&& fileReader, 
     const std::size_t readSize) noexcept
-    : m_FileReader{ std::move(fileReader) }, m_ReadSize{ readSize}
+    : m_FileReader{ std::move(fileReader) }, m_ReadSize{ readSize }
 {}
 
 template <typename _Type>
-_Type InputBuffer<_Type>::GetValue() noexcept
+_Type InputBuffer<_Type>::GetValue() noexcept(false)
 {
-    return m_Data[m_Iterator++];
+    return m_Data.at(m_Iterator++);
 }
 
 template <typename _Type>
 void InputBuffer<_Type>::Read() noexcept(false)
 {
     m_Data = m_FileReader.Read(m_ReadSize);
-    m_Iterator = {};
+
+    if (m_FileReader.GetLastReadBytes())
+    {
+        m_Iterator = {};
+    }
 }
 
 template <typename _Type>

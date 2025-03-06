@@ -31,7 +31,7 @@ InputBufferSpawner::InputBufferSpawner(FileInfo&& directoryInfo,
         throw std::runtime_error{ "No files found in the directory" };
     }
 
-    m_ReadSize = availableMemory / m_EntitiesCount;
+    m_BufferSize = availableMemory / m_EntitiesCount;
 }
 
 InputBufferSpawner::InputBuffer InputBufferSpawner::Spawn() noexcept(false)
@@ -44,5 +44,5 @@ InputBufferSpawner::InputBuffer InputBufferSpawner::Spawn() noexcept(false)
         new ByteParser{}
     };
 
-    return { std::move(reader), m_ReadSize };
+    return { std::move(reader), m_BufferSize };
 }

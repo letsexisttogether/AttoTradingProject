@@ -20,7 +20,7 @@ public:
 
     ~OutputBuffer();
 
-    void PutValue(const _Type value) noexcept;
+    void PutValue(const _Type value) noexcept(false);
 
     void Write() noexcept(false);
 
@@ -62,9 +62,9 @@ OutputBuffer<_Type>::~OutputBuffer()
 }
 
 template <typename _Type>
-void OutputBuffer<_Type>::PutValue(const _Type value) noexcept
+void OutputBuffer<_Type>::PutValue(const _Type value) noexcept(false)
 {
-    m_Data[m_Iterator++] = value;
+    m_Data.at(m_Iterator++) = value;
 }
 
 template <typename _Type>

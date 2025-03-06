@@ -3,8 +3,8 @@
 #include "Parse/Value/ValueParser.hpp"
 
 OutputBufferSpawner::OutputBufferSpawner(FileInfo&& fileInfo,
-    const std::size_t readSize) noexcept
-    : BufferSpawner{ std::move(fileInfo), readSize, 1 }
+    const std::size_t bufferSize) noexcept
+    : BufferSpawner{ std::move(fileInfo), bufferSize, 1 }
 {}
 
 OutputBufferSpawner::OutputBuffer OutputBufferSpawner::Spawn()
@@ -17,5 +17,5 @@ OutputBufferSpawner::OutputBuffer OutputBufferSpawner::Spawn()
 
     --m_EntitiesCount;
 
-    return { std::move(writer), m_ReadSize };
+    return { std::move(writer), m_BufferSize };
 }
