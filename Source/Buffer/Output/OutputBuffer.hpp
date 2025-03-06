@@ -1,5 +1,7 @@
 #pragma once
 
+#include <iostream>
+
 #include "FileProcess/Write/FileWriter.hpp"
 
 template <typename _Type>
@@ -11,16 +13,16 @@ public:
 public:
     OutputBuffer() = delete;
     OutputBuffer(const OutputBuffer&) = delete;
-    OutputBuffer(OutputBuffer&&) = delete;
+    OutputBuffer(OutputBuffer&&) = default;
 
     OutputBuffer(FileWriter&& fileReader, const std::size_t bufferSize)
         noexcept;
 
-    ~OutputBuffer() = default;
+    ~OutputBuffer();
 
     void PutValue(const _Type value) noexcept;
 
-    void Write() noexcept;
+    void Write() noexcept(false);
 
     bool IsEOF() const noexcept;
     bool IsEnd() const noexcept;
@@ -32,7 +34,7 @@ private:
     using Data = typename FileWriter::InputData;
 
 private:
-    FileWriter&& m_FileWriter;
+    FileWriter m_FileWriter;
 
     Data m_Data{};
     std::size_t m_Iterator{};
@@ -47,13 +49,28 @@ OutputBuffer<_Type>::OutputBuffer(FileWriter&& fileWriter,
 }
 
 template <typename _Type>
-void OutputBuffer<_Type>::PutValue(const _Type value) noexcept
+OutputBuffer<_Type>::~OutputBuffer() 
 {
-    m_Data[m_Iterator++] = value;
+    m_Data.erase(m_Data.begin() + m_Iterator, m_Data.end());
+
+    try
+    {
+        Write();
+    }
+    catch(...)
+    {}
 }
 
 template <typename _Type>
-void OutputBuffer<_Type>::Write() noexcept
+void OutputBuffer<_Type>::PutValue(const _Type value) noexcept
+{
+    m_Data[m_Iterator++] = value;
+
+    std::cout << "The value we put: " << m_Data[m_Iterator - 1] << '\n';
+}
+
+template <typename _Type>
+void OutputBuffer<_Type>::Write() noexcept(false)
 {
     m_FileWriter.Write(m_Data);
     m_Iterator = {};

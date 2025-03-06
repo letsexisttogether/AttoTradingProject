@@ -11,7 +11,7 @@ public:
 public:
     InputBuffer() = delete;
     InputBuffer(const InputBuffer&) = delete;
-    InputBuffer(InputBuffer&&) = delete;
+    InputBuffer(InputBuffer&&) = default;
 
     InputBuffer(FileReader&& fileReader, const std::size_t readSize)
         noexcept;
@@ -20,7 +20,7 @@ public:
 
     _Type GetValue() noexcept;
 
-    void Read() noexcept;
+    void Read() noexcept(false);
 
     bool IsEOF() const noexcept;
     bool IsEnd() const noexcept;
@@ -32,7 +32,7 @@ private:
     using Data = typename FileReader::OutputData;
 
 private:
-    FileReader&& m_FileReader;
+    FileReader m_FileReader;
 
     std::size_t m_ReadSize;
 
@@ -54,7 +54,7 @@ _Type InputBuffer<_Type>::GetValue() noexcept
 }
 
 template <typename _Type>
-void InputBuffer<_Type>::Read() noexcept
+void InputBuffer<_Type>::Read() noexcept(false)
 {
     m_Data = m_FileReader.Read(m_ReadSize);
     m_Iterator = {};
