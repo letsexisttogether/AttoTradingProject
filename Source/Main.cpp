@@ -1,8 +1,9 @@
 #include <iostream>
 #include <filesystem>
-#include <fstream>
 #include <algorithm>
 
+#include "FileProcess/Read/FileReader.hpp"
+#include "FileProcess/Write/FileWriter.hpp"
 #include "Parse/Byte/ByteParser.hpp"
 #include "Parse/Value/ValueParser.hpp"
 
@@ -17,111 +18,111 @@ std::int32_t main(std::int32_t argc, char** argv)
         ((argc > 2) ? (argv[2]) : ("Output.txt"))
     };
 
-    std::cout << "agasgag" << std::endl;
+    // 90 Mb for all the buffers at max
 
-    /*
+    const std::size_t fileSize = std::filesystem::file_size(inputFilePath);
+    const std::size_t chunkSize = std::min(45ull * 1024 * 1024, fileSize);
+
     try
     {
-        std::filesystem::copy(inputFilePath, outputFilePath,
-            std::filesystem::copy_options::overwrite_existing);
+        std::vector<double> data{};
+
+        FileReader<double> reader
+        { 
+            { inputFilePath, std::ios::in },
+            new ByteParser{}
+        }; 
+
+        FileWriter<double> writer
+        {
+            { outputFilePath, std::ios::out },
+            new ValueParser{}
+        };
+
+        while(!reader.IsEOF())
+        {
+            data = reader.Read(chunkSize);
+
+            /*
+            for (const auto value : data)
+            {
+                std::cout << value << '\n';
+            }
+            std::cout << std::endl;
+            */
+
+            writer.Write(data);
+        }
+
+        std::cout << "The end" << std::endl;
     }
     catch(std::exception& exp)
     {
         std::cerr << "[Error] " << exp.what() << std::endl;
-
-        return EXIT_FAILURE;
-    }
-    */
-
-    std::cout << "We copied the file" << std::endl;
-
-    std::ifstream inputStream{ inputFilePath };
-    std::ofstream outputStream{ outputFilePath };
-
-    const std::size_t fileSize = std::filesystem::file_size(inputFilePath);
-
-    if (!inputStream.is_open() || !outputStream.is_open())
-    {
-        std::cerr << "[Error] No connecting with the files "
-            << inputFilePath << outputFilePath << std::endl;
-
-        return EXIT_FAILURE;
     }
 
-    const std::size_t chunkSize = std::min(30ull * 1024 * 1024, fileSize);
-
-    std::unique_ptr<Parser<char, double>> byteParser
-    {
-        new ByteParser{}
-    };
-    std::unique_ptr<Parser<double, char>> valueParser 
-    {
-        new ValueParser{}
-    };
-
-    while(true)
-    {
-        const std::size_t position = inputStream.tellg();
-        // std::cout << "The position: " << position << std::endl;
-
-        ByteParser::InputBuffer rawBuffer(chunkSize);
-
-        inputStream.read(rawBuffer.data(), chunkSize);
-
-        if (inputStream.bad())
-        {
-            std::cerr << "[Error] The read operation has failed" << std::endl;
-
-            return EXIT_FAILURE;
-        }
-
-        const std::size_t bytesRead = inputStream.gcount();
-        // std::cout << "gcount(): " << bytesRead << std::endl;
-
-        if (!bytesRead)
-        {
-            break;
-        }
-
-        ByteParser::OutputBuffer valuesAsDouble
-        { 
-            byteParser->Parse(rawBuffer) 
-        };
-
-        std::sort(valuesAsDouble.begin(), valuesAsDouble.end());
 
         /*
-        for (const double value : valuesAsDouble)
+        std::priority_queue<double> queue{};
+
+        // 3 buffers x 20 mb for input; 1 buffer is for size / 3
+        // 1 buffer x 20 mb  for output;
+
+        
+        // InputBuffer(startPosition, maxPosition, chunkSize)
+        // 
+        // max_position = file_size / 3
+        // currentPosition
+        // chunkSize
+        //   
+        // GetData()
+        // Read()
+        // GetNext()
+
+        // OutputBuffer
+
+        // currentPosition
+        // chunkSize
+
+        // Write
+        // PutData
+        // IsFull()
+        //  return currentPosition * sizeof(double) == chunkSize
+        //
+
+        std::vector<InputBuffer> m_InputBuffers{};
+        OutputBuffer m_OutputBuffer{};
+
+        for (std::size_t i = 0; i < m_InputBuffers.size(); ++i)
         {
-            std::cout << value << '\n';
+            buffer.Read();
+
+            m_OrderedValues.insert({ buffer.GetNextValue(), i });
         }
-        std::cout << std::endl;
+
+        while(!m_OrderedValues.empty())
+        {
+            const auto [value, bufferID] = m_OrderedValues.top();
+            m_OrderedValues.pop();
+
+            if (auto& inputBuffer = m_InputBuffers[bufferID];
+                inputBuffer.IsLastElement())
+            {
+                inputBuffer.Read();
+            }
+            else
+            {
+                m_OrderedValues.insert({ m_InputBuffer.GetNextValue(), bufferID });
+            }
+
+            m_OutputBuffer.Put(value);
+
+            if (m_OutputBuffer.IsFull())
+            {
+                m_OutputBuffer.Write();
+            }
+        }
         */
-
-        ValueParser::OutputBuffer valuesAsChar
-        { 
-            valueParser->Parse(valuesAsDouble) 
-        };
-
-        /*
-        for (const char symbol : valuesAsChar)
-        {
-            std::cout << symbol;
-        }
-        std::cout << std::endl;
-        */
-
-        // std::cout << "The writing position: " << outputStream.tellp() << std::endl;
-
-        outputStream.write(valuesAsChar.data(), valuesAsChar.size());
-
-        if (outputStream.bad())
-        {
-            std::cerr << "[Error] The write operation has failed" << std::endl;
-
-            return EXIT_FAILURE;
-        }
-    }
-
+        
     return EXIT_SUCCESS;
 }
