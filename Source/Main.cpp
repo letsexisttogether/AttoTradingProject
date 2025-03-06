@@ -117,7 +117,7 @@ std::int32_t main(std::int32_t argc, char** argv)
         OutputBuffer<double> outputBuffer{ std::move(writer), writeSize };
         */
 
-        InputBuffer<double>& inputBuffer = inputBuffers[0];
+        InputBuffer<double>& inputBuffer = inputBuffers.at(0);
         OutputBuffer<double> outputBuffer{ outputBufferSpawner.Spawn() };
 
         std::cout << "We started merging" << std::endl;

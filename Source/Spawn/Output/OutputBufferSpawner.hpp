@@ -1,9 +1,10 @@
 #pragma once
 
+#include "Spawn/BufferSpawner.hpp"
 #include "Buffer/Output/OutputBuffer.hpp"
 #include "General/FileInfo.hpp"
 
-class OutputBufferSpawner
+class OutputBufferSpawner : public BufferSpawner
 {
 public:
     using OutputBuffer = OutputBuffer<double>;
@@ -20,13 +21,6 @@ public:
 
     OutputBuffer Spawn() noexcept(false);
 
-    bool IsEnd() const noexcept;
-
     OutputBufferSpawner& operator = (const OutputBufferSpawner&) = delete;
     OutputBufferSpawner& operator = (OutputBufferSpawner&&) = delete;
-
-private:
-    FileInfo m_FileInfo;
-
-    std::size_t m_ReadSize{};
 };

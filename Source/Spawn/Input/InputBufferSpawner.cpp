@@ -6,9 +6,9 @@
 
 InputBufferSpawner::InputBufferSpawner(FileInfo&& directoryInfo,
     const std::size_t memoryAvailable) noexcept(false)
-    : m_DirectoryInfo{ std::move(directoryInfo) }
+    : BufferSpawner{ std::move(directoryInfo) }
 {
-    const std::filesystem::path& path = m_DirectoryInfo.Path;
+    const std::filesystem::path& path = m_Info.Path;
 
     if (!std::filesystem::exists(path)
         || !std::filesystem::is_directory(path))
@@ -24,22 +24,21 @@ InputBufferSpawner::InputBufferSpawner(FileInfo&& directoryInfo,
         }
     }
 
-    m_ReadSize = memoryAvailable / m_Files.size();
+    m_EntitiesCount = m_Files.size();
+
+    m_ReadSize = memoryAvailable / m_EntitiesCount;
 }
 
 
 InputBufferSpawner::InputBuffer InputBufferSpawner::Spawn() noexcept(false)
 {
+    const std::size_t fileIndex = m_Files.size() - m_EntitiesCount--; 
+
     InputBuffer::FileReader reader
     {
-        { m_Files.at(m_Iterator++), m_DirectoryInfo.OpenMode },
+        { m_Files.at(fileIndex), m_Info.OpenMode },
         new ByteParser{}
     };
 
     return { std::move(reader), m_ReadSize };
-}
-
-bool InputBufferSpawner::IsEnd() const noexcept
-{
-    return m_Iterator >= m_Files.size();
 }

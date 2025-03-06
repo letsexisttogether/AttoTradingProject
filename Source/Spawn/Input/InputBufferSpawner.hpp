@@ -1,10 +1,11 @@
 #pragma once
 
+#include "Spawn/BufferSpawner.hpp"
 #include "Buffer/Input/InputBuffer.hpp"
 #include "General/FileInfo.hpp"
 
-class InputBufferSpawner
-{
+class InputBufferSpawner : public BufferSpawner
+{ 
 public:
     using InputBuffer = InputBuffer<double>;
 
@@ -20,16 +21,9 @@ public:
 
     InputBuffer Spawn() noexcept(false);
 
-    bool IsEnd() const noexcept;
-
     InputBufferSpawner& operator = (const InputBufferSpawner&) = delete;
     InputBufferSpawner& operator = (InputBufferSpawner&&) = delete;
 
 private:
-    FileInfo m_DirectoryInfo;
-
-    std::size_t m_ReadSize;
-    
     std::vector<std::filesystem::path> m_Files{};
-    std::size_t m_Iterator{};
 };
