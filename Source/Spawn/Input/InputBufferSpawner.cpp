@@ -5,7 +5,7 @@
 #include "Parse/Byte/ByteParser.hpp"
 
 InputBufferSpawner::InputBufferSpawner(FileInfo&& directoryInfo,
-    const std::size_t memoryAvailable) noexcept(false)
+    const std::size_t availableMemory) noexcept(false)
     : BufferSpawner{ std::move(directoryInfo) }
 {
     const std::filesystem::path& path = m_Info.Path;
@@ -26,9 +26,13 @@ InputBufferSpawner::InputBufferSpawner(FileInfo&& directoryInfo,
 
     m_EntitiesCount = m_Files.size();
 
-    m_ReadSize = memoryAvailable / m_EntitiesCount;
-}
+    if (IsEnd())
+    {
+        throw std::runtime_error{ "No files found in the directory" };
+    }
 
+    m_ReadSize = availableMemory / m_EntitiesCount;
+}
 
 InputBufferSpawner::InputBuffer InputBufferSpawner::Spawn() noexcept(false)
 {

@@ -15,7 +15,7 @@ public:
     InputBufferSpawner(InputBufferSpawner&&) = delete;
 
     InputBufferSpawner(FileInfo&& directoryInfo,
-        const std::size_t memoryAvailable) noexcept(false);
+        const std::size_t availableMemory) noexcept(false);
 
     ~InputBufferSpawner() = default;
 
