@@ -9,15 +9,24 @@ public:
     using FileReader = FileReader<_Type>;
 
 public:
+    InputBuffer() = delete;
+    InputBuffer(const InputBuffer&) = delete;
+    InputBuffer(InputBuffer&&) = delete;
+
     InputBuffer(FileReader&& fileReader, const std::size_t readSize)
         noexcept;
 
-    _Type GetNext() noexcept;
+    ~InputBuffer() = default;
 
-    void Refill() noexcept;
+    _Type GetValue() noexcept;
+
+    void Read() noexcept;
 
     bool IsEOF() const noexcept;
     bool IsEnd() const noexcept;
+
+    InputBuffer& operator = (const InputBuffer&) = delete;
+    InputBuffer& operator = (InputBuffer&&) = delete;
 
 private:
     using Data = typename FileReader::OutputData;
@@ -39,13 +48,13 @@ InputBuffer<_Type>::InputBuffer(FileReader&& fileReader,
 {}
 
 template <typename _Type>
-_Type InputBuffer<_Type>::GetNext() noexcept
+_Type InputBuffer<_Type>::GetValue() noexcept
 {
     return m_Data[m_Iterator++];
 }
 
 template <typename _Type>
-void InputBuffer<_Type>::Refill() noexcept
+void InputBuffer<_Type>::Read() noexcept
 {
     m_Data = m_FileReader.Read(m_ReadSize);
     m_Iterator = {};

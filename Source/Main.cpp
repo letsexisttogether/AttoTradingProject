@@ -1,7 +1,12 @@
 #include <iostream>
+#include <cstdlib>
+#include <exception>
 #include <filesystem>
 #include <algorithm>
+#include <string>
 
+#include "Buffer/Input/InputBuffer.hpp"
+#include "Buffer/Output/OutputBuffer.hpp"
 #include "FileProcess/Read/FileReader.hpp"
 #include "FileProcess/Write/FileWriter.hpp"
 #include "Parse/Byte/ByteParser.hpp"
@@ -18,10 +23,24 @@ std::int32_t main(std::int32_t argc, char** argv)
         ((argc > 2) ? (argv[2]) : ("Output.txt"))
     };
 
+    const std::string tempDirPath
+    {
+        "temp/"
+    };
+    const std::string tempFilePath
+    {
+        tempDirPath + "file"
+    };
+
+    std::filesystem::create_directory("temp");
+
+
     // 90 Mb for all the buffers at max
 
-    const std::size_t fileSize = std::filesystem::file_size(inputFilePath);
-    const std::size_t chunkSize = std::min(45ull * 1024 * 1024, fileSize);
+    const std::size_t inputFileSize = std::filesystem::file_size(inputFilePath);
+    const std::size_t inputReadSize = std::min(45ull * 1024 * 1024, inputFileSize);
+
+    std::size_t valuesCount{};
 
     try
     {
@@ -33,96 +52,140 @@ std::int32_t main(std::int32_t argc, char** argv)
             new ByteParser{}
         }; 
 
-        FileWriter<double> writer
+        for (std::size_t i = 1; !reader.IsEOF(); ++i)
         {
-            { outputFilePath, std::ios::out },
-            new ValueParser{}
-        };
+            data = reader.Read(inputReadSize);
+            valuesCount += data.size();
 
-        while(!reader.IsEOF())
-        {
-            data = reader.Read(chunkSize);
+            std::sort(data.begin(), data.end());
 
-            /*
-            for (const auto value : data)
+            FileWriter<double> writer
             {
-                std::cout << value << '\n';
-            }
-            std::cout << std::endl;
-            */
+                { tempFilePath + std::to_string(i), std::ios::out },
+                new ValueParser{}
+            };
 
             writer.Write(data);
         }
 
-        std::cout << "The end" << std::endl;
+        std::cout << "We finished sorting" << std::endl;
     }
     catch(std::exception& exp)
     {
         std::cerr << "[Error] " << exp.what() << std::endl;
     }
 
+    try
+    {
+        FileReader<double> reader
+        { 
+            { tempFilePath + std::to_string(1), std::ios::in },
+            new ByteParser{}
+        }; 
 
-        /*
-        std::priority_queue<double> queue{};
-
-        // 3 buffers x 20 mb for input; 1 buffer is for size / 3
-        // 1 buffer x 20 mb  for output;
-
-        
-        // InputBuffer(startPosition, maxPosition, chunkSize)
-        // 
-        // max_position = file_size / 3
-        // currentPosition
-        // chunkSize
-        //   
-        // GetData()
-        // Read()
-        // GetNext()
-
-        // OutputBuffer
-
-        // currentPosition
-        // chunkSize
-
-        // Write
-        // PutData
-        // IsFull()
-        //  return currentPosition * sizeof(double) == chunkSize
-        //
-
-        std::vector<InputBuffer> m_InputBuffers{};
-        OutputBuffer m_OutputBuffer{};
-
-        for (std::size_t i = 0; i < m_InputBuffers.size(); ++i)
+        FileWriter<double> writer
         {
-            buffer.Read();
+            { outputFilePath, std::ios::out },
+            new ValueParser{}
+        };
 
-            m_OrderedValues.insert({ buffer.GetNextValue(), i });
+        const std::size_t predWriteSize = 10 * 1024 * 1024 / sizeof(double);
+
+        const std::size_t readSize = 5 * 1024 * 1024;
+        const std::size_t writeSize = std::min(predWriteSize, valuesCount);
+
+        InputBuffer<double> inputBuffer{ std::move(reader), readSize };
+
+        OutputBuffer<double> outputBuffer{ std::move(writer), writeSize };
+
+        while (!inputBuffer.IsEOF())
+        {
+            inputBuffer.Read();
+
+            while(!inputBuffer.IsEnd())
+            {
+                if (outputBuffer.IsEnd())
+                {
+                    outputBuffer.Write();
+                }
+
+                outputBuffer.PutValue(inputBuffer.GetValue());
+            }
         }
 
-        while(!m_OrderedValues.empty())
+        if (!outputBuffer.IsEnd())
         {
-            const auto [value, bufferID] = m_OrderedValues.top();
-            m_OrderedValues.pop();
-
-            if (auto& inputBuffer = m_InputBuffers[bufferID];
-                inputBuffer.IsLastElement())
-            {
-                inputBuffer.Read();
-            }
-            else
-            {
-                m_OrderedValues.insert({ m_InputBuffer.GetNextValue(), bufferID });
-            }
-
-            m_OutputBuffer.Put(value);
-
-            if (m_OutputBuffer.IsFull())
-            {
-                m_OutputBuffer.Write();
-            }
+            outputBuffer.Write();
         }
-        */
+    }
+    catch(std::exception& exp)
+    {
+
+    }
+
+    // std::filesystem::remove_all(tempDirPath);
+
+    /*
+    std::priority_queue<double> queue{};
+
+    // 3 buffers x 20 mb for input; 1 buffer is for size / 3
+    // 1 buffer x 20 mb  for output;
+
+    
+    // InputBuffer(startPosition, maxPosition, inputReadSize)
+    // 
+    // max_position = file_size / 3
+    // currentPosition
+    // inputReadSize
+    //   
+    // GetData()
+    // Read()
+    // GetNext()
+
+    // OutputBuffer
+
+    // currentPosition
+    // inputReadSize
+
+    // Write
+    // PutData
+    // IsFull()
+    //  return currentPosition * sizeof(double) == inputReadSize
+    //
+
+    std::vector<InputBuffer> m_InputBuffers{};
+    OutputBuffer m_OutputBuffer{};
+
+    for (std::size_t i = 0; i < m_InputBuffers.size(); ++i)
+    {
+        buffer.Read();
+
+        m_OrderedValues.insert({ buffer.GetNextValue(), i });
+    }
+
+    while(!m_OrderedValues.empty())
+    {
+        const auto [value, bufferID] = m_OrderedValues.top();
+        m_OrderedValues.pop();
+
+        if (auto& inputBuffer = m_InputBuffers[bufferID];
+            inputBuffer.IsLastElement())
+        {
+            inputBuffer.Read();
+        }
+        else
+        {
+            m_OrderedValues.insert({ m_InputBuffer.GetNextValue(), bufferID });
+        }
+
+        m_OutputBuffer.Put(value);
+
+        if (m_OutputBuffer.IsFull())
+        {
+            m_OutputBuffer.Write();
+        }
+    }
+    */
         
     return EXIT_SUCCESS;
 }

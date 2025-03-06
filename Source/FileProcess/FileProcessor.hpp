@@ -19,6 +19,8 @@ public:
     virtual std::size_t GetPointer() noexcept = 0;
     virtual void PlacePointer(const std::size_t position) noexcept = 0;
 
+    FileInfo GetFileInfo() const noexcept;
+
     bool IsOpen() const noexcept;
     bool IsEOF() const noexcept;
 

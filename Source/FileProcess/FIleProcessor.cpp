@@ -15,6 +15,12 @@ FileProcessor<_FileStream>::FileProcessor(const FileInfo fileInfo)
 }
 
 template <class _FileStream>
+FileInfo FileProcessor<_FileStream>::GetFileInfo() const noexcept
+{
+    return m_FileInfo;
+}
+
+template <class _FileStream>
 bool FileProcessor<_FileStream>::IsOpen() const noexcept
 {
     return m_FileStream.is_open();
