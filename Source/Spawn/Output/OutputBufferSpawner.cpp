@@ -4,7 +4,7 @@
 
 OutputBufferSpawner::OutputBufferSpawner(FileInfo&& fileInfo,
     const std::size_t bufferSize) noexcept
-    : BufferSpawner{ std::move(fileInfo), bufferSize, 1 }
+    : BufferSpawner{ std::move(fileInfo), bufferSize / sizeof(double), 1 }
 {}
 
 OutputBufferSpawner::OutputBuffer OutputBufferSpawner::Spawn()

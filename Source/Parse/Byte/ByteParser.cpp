@@ -22,23 +22,30 @@ ByteParser::OutputBuffer ByteParser::Parse(const InputBuffer& buffer) noexcept
         try
         {
             const double value = std::stod(doubleAsStr);
-
             parsedValues.push_back(value);
+
+            doubleAsStr.clear();
         }
         catch (const std::exception& exp)
         {
             std::cerr << "[Error] The provided value \"" << doubleAsStr
                 << "\" is not double precision: " << exp.what() << std::endl;
 
+            doubleAsStr.clear();
             m_RemainingData.clear();
 
             break;
         }
-
-        doubleAsStr.clear();
     }
 
-    m_RemainingData = doubleAsStr;
+    if (!doubleAsStr.empty())
+    {
+        m_RemainingData = doubleAsStr;
+    }
+    else
+    {
+        m_RemainingData.clear();
+    }
 
     return parsedValues;
 }

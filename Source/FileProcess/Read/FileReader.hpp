@@ -58,6 +58,8 @@ typename FileReader<_Type>::OutputData FileReader<_Type>::Read
         throw std::exception{ "The read operation has failed" };
     }
 
+    rawData.resize(GetLastReadBytes());
+
     return m_Parser->Parse(rawData);
 }
 

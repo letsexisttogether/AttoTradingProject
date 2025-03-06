@@ -12,6 +12,8 @@
 #include "Spawn/Input/InputBufferSpawner.hpp"
 #include "Spawn/Output/OutputBufferSpawner.hpp"
 
+#include "General/MemoryUsage.hpp"
+
 ExternalSorter::ExternalSorter(const std::filesystem::path& inputPath,
     const std::filesystem::path& outputPath,
     const std::size_t availableMemory) noexcept
