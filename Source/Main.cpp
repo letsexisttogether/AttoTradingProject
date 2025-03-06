@@ -11,6 +11,8 @@
 #include "FileProcess/Write/FileWriter.hpp"
 #include "Parse/Byte/ByteParser.hpp"
 #include "Parse/Value/ValueParser.hpp"
+#include "Spawn/Input/InputBufferSpawner.hpp"
+#include "Spawn/Output/OutputBufferSpawner.hpp"
 
 std::int32_t main(std::int32_t argc, char** argv)
 {
@@ -33,7 +35,6 @@ std::int32_t main(std::int32_t argc, char** argv)
     };
 
     std::filesystem::create_directory("temp");
-
 
     // 90 Mb for all the buffers at max
 
@@ -77,28 +78,51 @@ std::int32_t main(std::int32_t argc, char** argv)
 
     try
     {
-        FileReader<double> reader
+        InputBufferSpawner inputBufferSpawner
         { 
+            { tempDirPath, std::ios::in },
+            5 * 1024 * 1024
+        };
+
+        std::vector<InputBufferSpawner::InputBuffer> inputBuffers{};
+        while(!inputBufferSpawner.IsEnd())
+        {
+            inputBuffers.push_back(inputBufferSpawner.Spawn());
+        }
+
+        OutputBufferSpawner outputBufferSpawner
+        {
+            { outputFilePath, std::ios::out },
+            10 * 1024 * 1024 
+        };
+        
+        /*
+        FileReader<double> reader
+        {
             { tempFilePath + std::to_string(1), std::ios::in },
             new ByteParser{}
-        }; 
+        };
+        const std::size_t readSize = 5 * 1024 * 1024;
+
+        InputBuffer<double> inputBuffer{ std::move(reader), readSize };
 
         FileWriter<double> writer
         {
             { outputFilePath, std::ios::out },
             new ValueParser{}
         };
-
         const std::size_t predWriteSize = 10 * 1024 * 1024 / sizeof(double);
-
-        const std::size_t readSize = 5 * 1024 * 1024;
         const std::size_t writeSize = std::min(predWriteSize, valuesCount);
 
-        InputBuffer<double> inputBuffer{ std::move(reader), readSize };
-
         OutputBuffer<double> outputBuffer{ std::move(writer), writeSize };
+        */
 
-        while (!inputBuffer.IsEOF())
+        InputBuffer<double>& inputBuffer = inputBuffers[0];
+        OutputBuffer<double> outputBuffer{ outputBufferSpawner.Spawn() };
+
+        std::cout << "We started merging" << std::endl;
+
+        while(!inputBuffer.IsEnd() || !inputBuffer.IsEOF())
         {
             inputBuffer.Read();
 
@@ -109,18 +133,16 @@ std::int32_t main(std::int32_t argc, char** argv)
                     outputBuffer.Write();
                 }
 
-                outputBuffer.PutValue(inputBuffer.GetValue());
+                const double value = inputBuffer.GetValue();
+
+                outputBuffer.PutValue(value);
             }
         }
-
-        if (!outputBuffer.IsEnd())
-        {
-            outputBuffer.Write();
-        }
+        std::cout << std::endl;
     }
     catch(std::exception& exp)
     {
-
+        std::cerr << "[Error] " << exp.what() << std::endl;
     }
 
     // std::filesystem::remove_all(tempDirPath);
@@ -186,6 +208,8 @@ std::int32_t main(std::int32_t argc, char** argv)
         }
     }
     */
+
+    std::cout << "Happy end" << std::endl;
         
     return EXIT_SUCCESS;
 }

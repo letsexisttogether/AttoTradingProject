@@ -1,6 +1,5 @@
 #include "InputBufferSpawner.hpp"
 
-#include <iostream>
 #include <stdexcept>
 
 #include "Parse/Byte/ByteParser.hpp"
@@ -22,8 +21,6 @@ InputBufferSpawner::InputBufferSpawner(FileInfo&& directoryInfo,
         if (entry.is_regular_file()) 
         {
             m_Files.push_back(entry.path());
-
-            std::cout << m_Files.back() << '\n';
         }
     }
 

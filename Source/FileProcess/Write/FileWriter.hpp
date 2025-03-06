@@ -18,7 +18,7 @@ public:
     FileWriter(const FileWriter&) = delete;
     FileWriter(FileWriter&&) = default;
 
-    FileWriter(const FileInfo fileInfo, Parser* const parser)
+    FileWriter(const FileInfo& fileInfo, Parser* const parser)
         noexcept(false); 
 
     ~FileWriter() = default;
@@ -37,7 +37,7 @@ private:
 
 
 template <typename _Type>
-FileWriter<_Type>::FileWriter(const FileInfo fileInfo, Parser* const parser)
+FileWriter<_Type>::FileWriter(const FileInfo& fileInfo, Parser* const parser)
     noexcept(false)
     : FileProcessor{ fileInfo }, m_Parser{ parser }
 {}

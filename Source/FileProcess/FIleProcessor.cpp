@@ -3,7 +3,7 @@
 #include <fstream>
 
 template <class _FileStream>
-FileProcessor<_FileStream>::FileProcessor(const FileInfo fileInfo)
+FileProcessor<_FileStream>::FileProcessor(const FileInfo& fileInfo)
     noexcept(false)
     : m_FileInfo{ fileInfo },
     m_FileStream{ m_FileInfo.Path, m_FileInfo.OpenMode }

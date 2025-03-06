@@ -19,7 +19,7 @@ public:
     FileReader(const FileReader&) = delete;
     FileReader(FileReader&&) = default;
 
-    FileReader(const FileInfo fileInfo, Parser* const parser)
+    FileReader(const FileInfo& fileInfo, Parser* const parser)
         noexcept(false); 
 
     ~FileReader() = default;
@@ -40,7 +40,7 @@ private:
 
 
 template <typename _Type>
-FileReader<_Type>::FileReader(const FileInfo fileInfo, Parser* const parser)
+FileReader<_Type>::FileReader(const FileInfo& fileInfo, Parser* const parser)
     noexcept(false)
     : FileProcessor{ fileInfo }, m_Parser{ parser }
 {}

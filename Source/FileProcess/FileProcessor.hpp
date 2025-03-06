@@ -12,7 +12,7 @@ public:
     FileProcessor(const FileProcessor&) = delete;
     FileProcessor(FileProcessor&&) = default;
 
-    FileProcessor(const FileInfo fileInfo) noexcept(false);
+    FileProcessor(const FileInfo& fileInfo) noexcept(false);
 
     virtual ~FileProcessor() = default;
 

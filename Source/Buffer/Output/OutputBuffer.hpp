@@ -65,8 +65,6 @@ template <typename _Type>
 void OutputBuffer<_Type>::PutValue(const _Type value) noexcept
 {
     m_Data[m_Iterator++] = value;
-
-    std::cout << "The value we put: " << m_Data[m_Iterator - 1] << '\n';
 }
 
 template <typename _Type>
