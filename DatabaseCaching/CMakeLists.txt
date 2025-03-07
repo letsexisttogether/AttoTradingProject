@@ -1,4 +1,9 @@
+add_subdirectory(Database)
+add_subdirectory(Cache)
+
 set(PROJECT_SOURCES 
+    ${DATA_BASE_SOURCES}
+    ${CACHE_SOURCES}
     Main.cpp
 )
 
