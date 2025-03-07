@@ -2,9 +2,9 @@
 
 std::string Cache::Get(const std::string& key) const noexcept
 {
-    if (const auto iter = m_Buffer.find(key); iter != m_Buffer.end())
+    if (DoesExist(key))
     {
-        return iter->second;
+        return m_LastLookup->second;
     }
 
     return {};
@@ -20,11 +20,11 @@ std::string Cache::Set(const std::string& key, const std::string& data)
 
 std::string Cache::Remove(const std::string& key) noexcept
 {
-    if (const auto iter = m_Buffer.find(key); iter != m_Buffer.end())
+    if (DoesExist(key))
     {
-        const std::string data{ std::move(iter->second) };
+        const std::string data{ std::move(m_LastLookup->second) };
 
-        m_Buffer.erase(iter); 
+        m_Buffer.erase(m_LastLookup); 
 
         return data;
     }
@@ -32,9 +32,22 @@ std::string Cache::Remove(const std::string& key) noexcept
     return {};
 }
 
+
+bool Cache::DoesExist(const std::string& key) const noexcept
+{
+    m_LastLookup = m_Buffer.find(key);
+
+    return m_LastLookup != m_Buffer.end();
+}
+
 void Cache::Clear() noexcept
 {
     m_Buffer.clear(); 
+}
+
+Cache* Cache::Clone() const noexcept
+{
+    return new Cache{ *this };
 }
 
 std::size_t Cache::GetSize() const noexcept

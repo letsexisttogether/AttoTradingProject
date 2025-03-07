@@ -21,7 +21,11 @@ public:
         noexcept;
     virtual std::string Remove(const std::string& key) noexcept;
 
+    virtual bool DoesExist(const std::string& key) const noexcept;
+
     virtual void Clear() noexcept;
+
+    virtual Cache* Clone() const noexcept;
 
     std::size_t GetSize() const noexcept;
 
@@ -29,5 +33,7 @@ public:
     Cache& operator = (Cache&&) = default;
 
 protected:
-     Buffer m_Buffer;
+     Buffer m_Buffer{};
+
+     mutable Buffer::const_iterator m_LastLookup{};
 };

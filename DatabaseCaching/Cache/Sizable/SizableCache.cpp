@@ -37,6 +37,10 @@ void SizableCache::Clear() noexcept
     }
 }
 
+Cache* SizableCache::Clone() const noexcept
+{
+    return new SizableCache{ *this };
+}
 
 void SizableCache::RemoveExcess() noexcept
 {

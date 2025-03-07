@@ -21,6 +21,8 @@ public:
 
     void Clear() noexcept override;
 
+    Cache* Clone() const noexcept override;
+
     SizableCache& operator = (const SizableCache&) = default;
     SizableCache& operator = (SizableCache&&) = default;
 
