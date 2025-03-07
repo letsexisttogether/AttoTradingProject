@@ -2,12 +2,14 @@ add_subdirectory(Parse)
 add_subdirectory(Spawn)
 add_subdirectory(Sort)
 add_subdirectory(FileProcess)
+add_subdirectory(Generate)
 
 set(PROJECT_SOURCES 
     ${PARSE_SOURCES}
     ${SPAWN_SOURCES}
     ${SORT_SOURCES}
     ${FILE_PROCESS_SOURCES}
+    ${DATA_GENERATOR_SOURCES}
     Main.cpp
 )
 

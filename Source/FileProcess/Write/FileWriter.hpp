@@ -1,6 +1,7 @@
 #pragma once
 
 #include <fstream>
+#include <iosfwd>
 #include <memory>
 
 #include "FileProcess/FileProcessor.hpp"
@@ -23,7 +24,7 @@ public:
 
     ~FileWriter() = default;
 
-    void Write(const InputData& inputData) noexcept(false);
+    std::size_t Write(const InputData& inputData) noexcept(false);
 
     std::size_t GetPointer() noexcept override;
     void PlacePointer(const std::size_t position) noexcept override;
@@ -43,7 +44,8 @@ FileWriter<_Type>::FileWriter(const FileInfo& fileInfo, Parser* const parser)
 {}
 
 template <typename _Type>
-void FileWriter<_Type>::Write(const InputData& inputData) noexcept(false)
+std::size_t FileWriter<_Type>::Write(const InputData& inputData)
+    noexcept(false)
 {
     RawData rawData{ m_Parser->Parse(inputData) };
 
@@ -53,6 +55,8 @@ void FileWriter<_Type>::Write(const InputData& inputData) noexcept(false)
     {
         throw std::exception{ "The read operation has failed" };
     }
+    
+    return rawData.size();
 }
 
 template <typename _Type>

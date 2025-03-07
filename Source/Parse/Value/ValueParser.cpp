@@ -1,9 +1,12 @@
 #include "ValueParser.hpp"
 
-#include <iostream>
 #include <cstring>
 #include <vector>
 #include <cstdio>
+
+ValueParser::ValueParser(const std::string& format) noexcept
+    : m_OutputFormat{ format }
+{}
 
 ValueParser::OutputBuffer ValueParser::Parse(const InputBuffer& buffer) noexcept
 {
@@ -24,7 +27,7 @@ ValueParser::OutputBuffer ValueParser::Parse(const InputBuffer& buffer) noexcept
         const double value = tempBuffer[i];
 
         const std::int32_t len = std::snprintf(doubleBuffer, maxDoubleStrSize,
-            "%.5g\n", value);
+            m_OutputFormat.c_str(), value);
 
         if (len > 0)
         {

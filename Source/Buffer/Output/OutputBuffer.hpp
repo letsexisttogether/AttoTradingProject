@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iosfwd>
 #include <iostream>
 
 #include "FileProcess/Write/FileWriter.hpp"
@@ -22,7 +23,7 @@ public:
 
     void PutValue(const _Type value) noexcept;
 
-    void Write() noexcept(false);
+    std::size_t Write() noexcept(false);
 
     bool IsEOF() const noexcept;
     bool IsEnd() const noexcept;
@@ -68,10 +69,11 @@ void OutputBuffer<_Type>::PutValue(const _Type value) noexcept
 }
 
 template <typename _Type>
-void OutputBuffer<_Type>::Write() noexcept(false)
+std::size_t OutputBuffer<_Type>::Write() noexcept(false)
 {
-    m_FileWriter.Write(m_Data);
     m_Iterator = {};
+
+    return m_FileWriter.Write(m_Data);
 }
 
 template <typename _Type>
