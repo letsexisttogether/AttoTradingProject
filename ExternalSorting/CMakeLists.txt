@@ -13,6 +13,8 @@ set(PROJECT_SOURCES
     Main.cpp
 )
 
+add_executable(${PROJECT_NAME})
+
 target_sources(${PROJECT_NAME}
     PRIVATE ${PROJECT_SOURCES})
 
