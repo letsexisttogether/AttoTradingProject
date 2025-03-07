@@ -14,6 +14,9 @@ public:
     InputBufferSpawner(const InputBufferSpawner&) = default;
     InputBufferSpawner(InputBufferSpawner&&) = delete;
 
+    InputBufferSpawner(const FileInfo& directoryInfo,
+        const std::size_t availableMemory) noexcept(false);
+
     InputBufferSpawner(FileInfo&& directoryInfo,
         const std::size_t availableMemory) noexcept(false);
 
@@ -23,6 +26,9 @@ public:
 
     InputBufferSpawner& operator = (const InputBufferSpawner&) = delete;
     InputBufferSpawner& operator = (InputBufferSpawner&&) = delete;
+
+private:
+    void FetchFiles(const std::size_t availableMemory) noexcept(false);
 
 private:
     std::vector<std::filesystem::path> m_Files{};

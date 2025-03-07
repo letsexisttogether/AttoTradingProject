@@ -4,9 +4,37 @@
 
 #include "Parse/Byte/ByteParser.hpp"
 
+InputBufferSpawner::InputBufferSpawner(const FileInfo& directoryInfo,
+    const std::size_t availableMemory) noexcept(false)
+    : BufferSpawner{ directoryInfo }
+{
+    FetchFiles(availableMemory);
+}
+
 InputBufferSpawner::InputBufferSpawner(FileInfo&& directoryInfo,
     const std::size_t availableMemory) noexcept(false)
     : BufferSpawner{ std::move(directoryInfo) }
+{
+    FetchFiles(availableMemory);
+}
+
+InputBufferSpawner::InputBuffer InputBufferSpawner::Spawn() noexcept(false)
+{
+    const std::size_t fileIndex = m_Files.size() - m_EntitiesCount--; 
+
+    InputBuffer::FileReader reader
+    {
+        { m_Files.at(fileIndex), m_Info.OpenMode },
+        new ByteParser{}
+    };
+
+    return { std::move(reader), m_BufferSize };
+}
+
+
+
+void InputBufferSpawner::FetchFiles(const std::size_t availableMemory)
+    noexcept(false)
 {
     const std::filesystem::path& path = m_Info.Path;
 
@@ -32,17 +60,4 @@ InputBufferSpawner::InputBufferSpawner(FileInfo&& directoryInfo,
     }
 
     m_BufferSize = availableMemory / m_EntitiesCount;
-}
-
-InputBufferSpawner::InputBuffer InputBufferSpawner::Spawn() noexcept(false)
-{
-    const std::size_t fileIndex = m_Files.size() - m_EntitiesCount--; 
-
-    InputBuffer::FileReader reader
-    {
-        { m_Files.at(fileIndex), m_Info.OpenMode },
-        new ByteParser{}
-    };
-
-    return { std::move(reader), m_BufferSize };
 }

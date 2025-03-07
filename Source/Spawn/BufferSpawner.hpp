@@ -9,6 +9,9 @@ public:
     BufferSpawner(const BufferSpawner&) = default;
     BufferSpawner(BufferSpawner&&) = default;
 
+    BufferSpawner(const FileInfo& info, const std::size_t readSize = 0,
+        const std::size_t entitiesCount = 0) noexcept;
+
     BufferSpawner(FileInfo&& info, const std::size_t readSize = 0,
         const std::size_t entitiesCount = 0) noexcept;
 

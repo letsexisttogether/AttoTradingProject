@@ -14,6 +14,9 @@ public:
     OutputBufferSpawner(const OutputBufferSpawner&) = default;
     OutputBufferSpawner(OutputBufferSpawner&&) = delete;
 
+    OutputBufferSpawner(const FileInfo& fileInfo,
+        const std::size_t bufferSize) noexcept;
+
     OutputBufferSpawner(FileInfo&& fileInfo,
         const std::size_t bufferSize) noexcept;
 

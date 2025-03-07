@@ -13,7 +13,7 @@ ValueParser::OutputBuffer ValueParser::Parse(const InputBuffer& buffer) noexcept
     OutputBuffer parsedValues{};
     parsedValues.reserve(buffer.size() * maxDoubleStrSize);
 
-    InputBuffer tempBuffer = m_RemainingData;
+    InputBuffer tempBuffer{ m_RemainingData };
     tempBuffer.insert(tempBuffer.end(), buffer.begin(), buffer.end());
 
     char doubleBuffer[maxDoubleStrSize];
