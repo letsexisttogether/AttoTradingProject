@@ -18,7 +18,7 @@ ExternalSorter::ExternalSorter(const std::filesystem::path& inputPath,
     const std::filesystem::path& outputPath,
     const std::size_t availableMemory) noexcept
     : m_InputPath{ inputPath }, m_OutputPath{ outputPath },
-    m_AvailableMemory{ availableMemory }
+    m_BufferSize{ availableMemory / 2 } // Due to extra buffers use
 {
     try
     {
@@ -57,9 +57,6 @@ void ExternalSorter::Sort() noexcept
 
 void ExternalSorter::SortChunks() noexcept
 {
-    // 1 for read, 1 for write 
-    const std::size_t bufferSize = m_AvailableMemory / 2;
-
     const std::string tempFilePath
     { 
         m_TempDirPath.string() + "file" 
@@ -79,7 +76,7 @@ void ExternalSorter::SortChunks() noexcept
 
         for (std::size_t i = 1; !reader.IsEOF(); ++i)
         {
-            data = reader.Read(bufferSize);
+            data = reader.Read(m_BufferSize);
 
             std::sort(data.begin(), data.end());
 
@@ -107,8 +104,8 @@ void ExternalSorter::MergeChunks() noexcept
     std::priority_queue<ValueIndex, std::vector<ValueIndex>,
         std::greater<ValueIndex>> queue{};
 
-    const std::size_t inputSize = m_AvailableMemory * 0.8;
-    const std::size_t outputSize = m_AvailableMemory - inputSize;
+    const std::size_t inputSize = m_BufferSize * 0.8;
+    const std::size_t outputSize = m_BufferSize - inputSize;
 
     try
     {
@@ -167,6 +164,4 @@ void ExternalSorter::MergeChunks() noexcept
         std::cerr << "[Error during merging] "
             << exp.what() << std::endl;
     }
-
-    std::cout << "We merged" << std::endl;
 }

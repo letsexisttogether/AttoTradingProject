@@ -1,3 +1,4 @@
+#include <chrono>
 #include <iostream>
 #include <cstdlib>
 #include <string>
@@ -15,6 +16,8 @@ std::int32_t main(std::int32_t argc, char** argv)
         ((argc > 2) ? (argv[2]) : ("Output.txt"))
     };
 
+    const auto start = std::chrono::high_resolution_clock::now();
+
     ExternalSorter sorter
     {
         inputFilePath, outputFilePath,
@@ -22,6 +25,13 @@ std::int32_t main(std::int32_t argc, char** argv)
     };
 
     sorter.Sort();
+
+    const auto end = std::chrono::high_resolution_clock::now();
+
+    std::chrono::duration<double> duration = end - start;
+
+    std::cout << "Estimated time: " << duration.count() 
+        << " seconds" << std::endl;
         
     return EXIT_SUCCESS;
 }

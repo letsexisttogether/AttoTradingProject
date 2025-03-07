@@ -28,7 +28,7 @@ private:
     const std::filesystem::path m_InputPath;
     const std::filesystem::path m_OutputPath;
 
-    const std::size_t m_AvailableMemory;
+    const std::size_t m_BufferSize;
 
     const std::filesystem::path m_TempDirPath{ "ext_sort_temp/" };
 };
