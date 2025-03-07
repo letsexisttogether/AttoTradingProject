@@ -10,7 +10,7 @@ std::int32_t main(std::int32_t argc, char** argv)
 {
     const std::string inputFilePath 
     {
-        ((argc > 1) ? (argv[1]) : ("Input.txt"))
+        ((argc > 1) ? (argv[1]) : (""))
     };
     const std::string outputFilePath
     {
