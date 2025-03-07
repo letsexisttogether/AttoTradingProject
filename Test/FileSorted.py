@@ -1,12 +1,13 @@
 import argparse
 
+
 def is_file_sorted(file_path):
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
             first_line = file.readline().strip()
             
             try:
-                prev_value = float(first_line)  # Convert first line to float
+                prev_value = float(first_line)
             except ValueError:
                 print(f'[Error] "{first_line}" is not a valid number')
                 return False
