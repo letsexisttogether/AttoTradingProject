@@ -13,10 +13,12 @@ set(PROJECT_SOURCES
     Main.cpp
 )
 
-add_executable(${PROJECT_NAME})
+set(P_NAME ExternalSorting)
 
-target_sources(${PROJECT_NAME}
+add_executable(${P_NAME})
+
+target_sources(${P_NAME}
     PRIVATE ${PROJECT_SOURCES})
 
-target_include_directories(${PROJECT_NAME}
+target_include_directories(${P_NAME}
     PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
