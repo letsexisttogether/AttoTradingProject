@@ -15,10 +15,11 @@ More details on each of them will be provided in their respective sections.
 This project is built using **[CMake](https://cmake.org/)**, with **[Ninja](https://github.com/ninja-build/ninja)** as the preferred build system and **[Clang](https://clang.llvm.org/cxx_status.html)** as the compiler. However, since the project is written entirely in **C++17** using only **STL**, it can be compiled using any modern build system and a compiler that supports the specified version of C++.
 
 ### Prerequisites
-To compile the project, you need to have **the following tools** installed on your machine:
+To compile and use the project, you need to have **the following tools** installed on your machine:
 - **CMake** (version 3.20 or newer).
 - **Compiler** (GCC, Clang, or MSVC).  
 - **Git** (for cloning the repository).
+- **Python 3.10** (optional, for generator).
 
 ### Compilation Instructions
 
