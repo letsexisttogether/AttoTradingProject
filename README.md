@@ -120,7 +120,7 @@ The usage is straightforward, as the program **doesn't require any additional pa
 To run the program, use the following command:
 To run the program, use the following command:
 ```bash
-ExternalSorting <input_file.txt> <output_file.txt>
+Database Caching
 ```
 
 ### Usage Example 
