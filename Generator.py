@@ -10,7 +10,7 @@ def generate_file_with_double(filename, file_size_gb):
         while current_size < target_size:
             value = random.uniform(-1e6, 1e6)
 
-            line = f'{value:.10f}\n'
+            line = f'{value:.13f}\n'
             f.write(line)
 
             current_size += len(line.encode('utf-8'))
