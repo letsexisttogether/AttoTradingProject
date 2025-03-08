@@ -118,9 +118,8 @@ For the prototype of this project, a **database interface** was provided, **incl
 The usage is straightforward, as the program **doesn't require any additional parameters** and serves as a **concise representation** of the implemented caching functionality. The code is **designed with future extension** in mind, allowing it to be easily **integrated and used** as a caching system **in a real-world project**. 
 
 To run the program, use the following command:
-To run the program, use the following command:
 ```bash
-Database Caching
+DatabaseCaching
 ```
 
 ### Usage Example 
